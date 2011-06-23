@@ -8,8 +8,8 @@ Prerequisites
 - virtualbox - http://www.virtualbox.org/wiki/Downloads
 
 
-To just use it
-==============
+Just use it
+===========
 
     vagrant box add wise4-4_3-0 http://mysystem.dev.concord.org/wise4/wise4-4_3-0.box  # this downloads a 630MB file
     vagrant init wise4-4_3-0
@@ -31,16 +31,17 @@ If you want to get into the VM and check it out
 For more details see http://vagrantup.com
 
 
-To rebuild the vm from a barebones linux box
-============================================
+Rebuild the vm from a barebones linux box
+=========================================
 
     git clone git://github.com/concord-consortium/wise4-vagrant.git
+    cd wise4-vagrant
     vagrant up
     open http://localhost:4567/webapp/index.html
 
 
-To repackage the vm built above into a box
-==========================================
+Repackage the vm built above into a box
+=======================================
 
     vagrant ssh
     > sudo apt-get clean
