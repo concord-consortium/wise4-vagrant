@@ -9,6 +9,6 @@ Prerequisites
 
 Then to try it out:
 
-    git clone [fill me in]
+    git clone git://github.com/concord-consortium/wise4-vagrant.git
     vagrant up  # the first time you do this will take a while downloading a base virtual box and then setting it up
     open "http://localhost:4567/webapp/index.html"
