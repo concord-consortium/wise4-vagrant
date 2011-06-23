@@ -35,7 +35,8 @@ webapps.each do |base, suffix|
     source "http://wise4.org/downloads/software/#{base}#{suffix}.war"
     mode "0644"
     notifies :restart, resources(:service => "tomcat")
-    # not_if { true }
+    # check if each of the app folders exists when they are unpacked these folders are created
+    not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
   end
 end
 
@@ -43,11 +44,6 @@ end
 # need to force a catalina restart so the wars get exploded
 service "tomcat" do
   action :restart
-  # check if each of the app folders exists, starting tomcat takes a long time so skipping this is nice
-  not_if do
-    dirs = webapps.keys.collect{|app| "/var/lib/tomcat6/webapps/#{app}"}
-    dirs.all? {|dir| File.directory? dir}
-  end
 end
 
 # Item 7

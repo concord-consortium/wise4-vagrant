@@ -1,0 +1,7 @@
+Vagrant::Config.run do |config|
+  # Forward a port from the guest to the host, which allows for outside
+  # computers to access the VM, whereas host only networking does not.
+  # NOTE: this port 4567 is hard coded into some of the wise4 settings files
+  #   so changing it might break somethings. 
+  config.vm.forward_port "http", 8080, 4567
+end
