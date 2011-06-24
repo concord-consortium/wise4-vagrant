@@ -4,17 +4,18 @@ Prerequisites
 =============
 
 - ruby - on OS X this is already installed
+- git
 - vagrant - run "sudo gem install vagrant" (rvm users: change that appropriately)
 - virtualbox - http://www.virtualbox.org/wiki/Downloads
 
 
-Just use it
+Get Started
 ===========
 
-    vagrant box add wise4-4_3-0 http://mysystem.dev.concord.org/wise4/wise4-4_3-0.box  # this downloads a 630MB file
-    vagrant init wise4-4_3-0
-    vagrant up
-    open http://localhost:4567/webapp/index.html
+    git clone git://github.com/concord-consortium/wise4-vagrant.git
+    cd wise4-vagrant
+    vagrant up # this will take some time as it downloads a 636mb file
+    open http://localhost:8080/webapp/index.html
 
 When you are done using it and want to save disk space
 
@@ -30,25 +31,16 @@ If you want to get into the VM and check it out
 
 For more details see http://vagrantup.com
 
+Add a New Node (step type)
+==========================
 
-Rebuild the vm from a barebones linux box
-=========================================
+# generate new step files: java -jar lib/StepTypeCreator.jar mynewstep mns
+# enable that new step type in the Vagrantfile, uncomment the 2nd line:
 
-    git clone git://github.com/concord-consortium/wise4-vagrant.git
-    cd wise4-vagrant
-    vagrant up
-    open http://localhost:4567/webapp/index.html
+    'Mynewstep' => "mynewstep"
 
+# tell Vagrant to reconfigure the VM: vagrant reload
+# continue on step 4 here: http://code.google.com/p/wise4/wiki/HowToCreateANewWise4Step
 
-Repackage the vm built above into a box
-=======================================
-
-    vagrant ssh
-    > sudo apt-get clean
-    > sudo service tomcat6 stop
-    > sudo rm /var/lib/tomcat6/webapps/*.war
-    > cat /dev/zero > zero.fill;sync;sleep 1;sync;rm -f zero.fill  # fills drive with zeros for compression - takes a while
-    > exit
-    rm package.box
-    vagrant package --vagrantfile Vagrantfile.pkg
-    scp package.box otto.concord.org:/web/mysystem.dev.concord.org/wise4/wise4-4_3-0.box
+The values in the hashmap of Vagrantfile can be relative or paths.  Directories which are symlinks don't work because
+the directories need to be mounted into the VM, and symlinks don't work for that.
