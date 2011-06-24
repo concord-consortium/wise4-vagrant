@@ -8,8 +8,8 @@ include_recipe "tomcat"
 # Item 2
 template "/etc/tomcat6/context.xml" do
   source "context.xml.erb"
-  owner "root"
-  group "root"
+  owner "tomcat6"
+  group "tomcat6"
   mode "0644"
   notifies :restart, resources(:service => "tomcat")
 end
@@ -21,8 +21,8 @@ end
 %w{curriculum studentuploads}.each do |dir|
   directory "/var/lib/tomcat6/webapps/#{dir}" do
      mode 0775
-     owner "root"
-     group "root"
+     owner "tomcat6"
+     group "tomcat6"
      action :create
      recursive true
   end
@@ -54,8 +54,8 @@ end
 # Item 8
 template "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties" do
   source "portal.properties.erb"
-  owner "root"
-  group "root"
+  owner "tomcat6"
+  group "tomcat6"
   mode "0644"
   notifies :restart, resources(:service => "tomcat")
 end
