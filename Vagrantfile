@@ -15,7 +15,7 @@ Vagrant::Config.run do |config|
   end
 
   # the port forwarded from the host machine
-  wise4_port=4567
+  wise4_port=8080
 
   # enable this so we can install the extensions
   # config.vm.boot_mode = :gui
