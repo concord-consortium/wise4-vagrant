@@ -31,15 +31,21 @@ If you want to get into the VM and check it out
 
 For more details see http://vagrantup.com
 
-Add a New Node (step type)
-==========================
+Add a New Step Type
+===================
 
-1. generate new step files: java -jar lib/StepTypeCreator.jar mynewstep mns
-2. enable that new step type in the Vagrantfile, uncomment the 2nd line:
+1. generate new step files 
+
+    java -jar lib/StepTypeCreator.jar mynewstep mns
+
+2. enable that new step type in the Vagrantfile, uncomment the 2nd line
 
     'Mynewstep' => "mynewstep"
 
-3. tell Vagrant to reconfigure the VM: vagrant reload
+3. tell Vagrant to reconfigure the VM
+
+    vagrant reload
+
 4. continue on step 4 here: http://code.google.com/p/wise4/wiki/HowToCreateANewWise4Step
 
 The values in the hashmap of Vagrantfile can be relative or paths.  Directories which are symlinks don't work because
