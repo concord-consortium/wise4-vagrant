@@ -5,9 +5,8 @@ Prerequisites
 
 - ruby - on OS X this is already installed
 - git
-- vagrant - run "sudo gem install vagrant" (rvm users: change that appropriately)
-- virtualbox - http://www.virtualbox.org/wiki/Downloads
-
+- vagrant - run "sudo gem install vagrant" (rvm users: normally you will not use sudo)
+- virtualbox 4.1 - http://www.virtualbox.org/wiki/Downloads
 
 Get Started
 ===========
