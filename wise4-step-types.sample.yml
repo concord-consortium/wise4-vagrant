@@ -1,0 +1,3 @@
+# list names and paths of locally built step types to include in the vagrant instance
+--- 
+Mysystem2: ../mysystem_sc-git/vle/node/mysystem2

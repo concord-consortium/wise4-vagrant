@@ -1,6 +1,12 @@
-wise4_step_types = {
-# 'MyNewStep' => "mynewstep"
-}
+require 'yaml'
+
+wise4_step_types_path = File.expand_path('../wise4-step-types.yml', __FILE__)
+
+if File.exists?(wise4_step_types_path)
+  wise4_step_types = YAML.load_file(wise4_step_types_path)
+else
+  wise4_step_types = {}
+end
 
 Vagrant::Config.run do |config|
 
