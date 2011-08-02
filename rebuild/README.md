@@ -23,8 +23,9 @@ Repackage the vm built above into a box
     
 References
 =======================================
-# http://vagrantup.com/docs/getting-started/index.html
-# http://vagrantup.com/docs/provisioners/chef_solo.html
-# http://wiki.opscode.com/display/chef/Chef+Solo
-# http://wiki.opscode.com/display/chef/Resources
-# http://wiki.opscode.com/display/chef/Deploy+Resource
+
+- http://vagrantup.com/docs/getting-started/index.html
+- http://vagrantup.com/docs/provisioners/chef_solo.html
+- http://wiki.opscode.com/display/chef/Chef+Solo
+- http://wiki.opscode.com/display/chef/Resources
+- http://wiki.opscode.com/display/chef/Deploy+Resource
