@@ -4,6 +4,8 @@
 include_recipe "apt"
 include_recipe "mysql::server"
 include_recipe "tomcat"
+include_recipe "maven"
+include_recipe "subversion"
 
 # Item 2
 template "/etc/tomcat6/context.xml" do
@@ -16,10 +18,12 @@ end
 
 # Item 3 is specified in Vagrant file 
 
+WEBAPPS_PATH = "/var/lib/tomcat6/webapps"
+
 # Item 4
 # this assumes the default CATALAINA_BASE location
 %w{curriculum studentuploads}.each do |dir|
-  directory "/var/lib/tomcat6/webapps/#{dir}" do
+  directory "#{WEBAPPS_PATH}/#{dir}" do
      mode 0775
      owner "tomcat6"
      group "tomcat6"
@@ -28,9 +32,55 @@ end
   end
 end
 
+
+# create a directory for the wise4 source checkouts
+WISE4_SRC_PATH = "/home/vagrant/src"
+directory WISE4_SRC_PATH do
+   mode 0775
+   owner "vagrant"
+   group "vagrant"
+   action :create
+   recursive true
+end
+
+subversion "WISE4 sailportal:trunk:portal" do
+  repository "http://sailportal.googlecode.com/svn/trunk/portal"
+  revision "HEAD"
+  destination "#{WISE4_SRC_PATH}/portal"
+  user "vagrant"
+  group "vagrant"
+  action :sync
+end
+
+subversion "WISE4 sail-web:trunk:vlewrapper" do
+  repository "http://sail-web.googlecode.com/svn/trunk/vlewrapper"
+  revision "HEAD"
+  destination "#{WISE4_SRC_PATH}/vlewrapper"
+  user "vagrant"
+  group "vagrant"
+  action :sync
+end
+
+build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
+build_webapps.each do |dir, war_name|
+  ruby_block "build #{dir}:#{war_name}.war with maven and install" do
+    block do
+      Dir.chdir "#{WISE4_SRC_PATH}/#{dir}" do
+        if system("mvn -Dmaven.test.skip=true package")
+          system("cp target/#{war_name}.war #{WEBAPPS_PATH}")
+          notifies :restart, resources(:service => "tomcat")
+        else
+          raise "Error building WISE4 #{dir}:#{war_name}.war"
+        end
+      end
+    end
+  end
+end
+
 # Item 5
-webapps = {'webapp' => '-4.3', 'vlewrapper' => '-4.3', 'jnlp' => ''}
-webapps.each do |base, suffix|
+# downloaded_webapps = {'webapp' => '-4.3', 'vlewrapper' => '-4.3', 'jnlp' => ''}
+downloaded_webapps = {'jnlp' => ''}
+downloaded_webapps.each do |base, suffix|
   remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
     source "http://wise4.org/downloads/software/#{base}#{suffix}.war"
     mode "0644"

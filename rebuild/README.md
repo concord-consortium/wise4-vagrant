@@ -20,3 +20,11 @@ Repackage the vm built above into a box
     rm package.box
     vagrant package
     scp package.box otto.concord.org:/web/mysystem.dev.concord.org/wise4/wise4-4_3-1.box
+    
+References
+=======================================
+http://vagrantup.com/docs/getting-started/index.html
+http://vagrantup.com/docs/provisioners/chef_solo.html
+http://wiki.opscode.com/display/chef/Chef+Solo
+http://wiki.opscode.com/display/chef/Resources
+http://wiki.opscode.com/display/chef/Deploy+Resource

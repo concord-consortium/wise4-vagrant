@@ -11,7 +11,7 @@ Vagrant::Config.run do |config|
   config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
 
   config.vm.customize do |vm|
-    vm.name = "Wise4"
+    vm.name = "Wise4-trunk"
   end
 
   # the port forwarded from the host machine
