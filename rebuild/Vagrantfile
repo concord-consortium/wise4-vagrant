@@ -12,6 +12,7 @@ Vagrant::Config.run do |config|
 
   config.vm.customize do |vm|
     vm.name = "Wise4-trunk"
+    vm.memory_size = 512
   end
 
   # the port forwarded from the host machine

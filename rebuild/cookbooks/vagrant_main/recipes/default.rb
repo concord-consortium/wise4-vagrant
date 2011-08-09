@@ -4,8 +4,21 @@
 include_recipe "apt"
 include_recipe "mysql::server"
 include_recipe "tomcat"
+include_recipe "ant"
 include_recipe "maven"
 include_recipe "subversion"
+include_recipe "emacs"
+include_recipe "vim"
+
+script "set locale and timezone" do
+  interpreter "bash"
+  user "root"
+  code <<-EOH
+  locale-gen en_US.UTF-8
+  /usr/sbin/update-locale LANG=en_US.UTF-8
+  cp /usr/share/zoneinfo/right/America/New_York /etc/localtime
+  EOH
+end
 
 # Item 2
 template "/etc/tomcat6/context.xml" do
@@ -31,7 +44,6 @@ WEBAPPS_PATH = "/var/lib/tomcat6/webapps"
      recursive true
   end
 end
-
 
 # create a directory for the wise4 source checkouts
 WISE4_SRC_PATH = "/home/vagrant/src"
@@ -63,22 +75,23 @@ end
 
 build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
 build_webapps.each do |dir, war_name|
-  ruby_block "build #{dir}:#{war_name}.war with maven and install" do
-    block do
-      Dir.chdir "#{WISE4_SRC_PATH}/#{dir}" do
-        if system("mvn -Dmaven.test.skip=true package")
-          system("cp target/#{war_name}.war #{WEBAPPS_PATH}")
-          notifies :restart, resources(:service => "tomcat")
-        else
-          raise "Error building WISE4 #{dir}:#{war_name}.war"
-        end
-      end
-    end
+  script "build #{dir}:#{war_name}.war with maven and install" do
+    interpreter "bash"
+    user "vagrant"
+    code <<-EOH
+    cd #{WISE4_SRC_PATH}/#{dir}
+    mvn -Dmaven.test.skip=true package
+    sudo cp target/#{war_name}.war #{WEBAPPS_PATH}
+    EOH
   end
 end
 
+cookbook_file "/home/vagrant/src/update-wise4.sh" do
+  source "update-wise4.sh"
+  mode "0755"
+end
+
 # Item 5
-# downloaded_webapps = {'webapp' => '-4.3', 'vlewrapper' => '-4.3', 'jnlp' => ''}
 downloaded_webapps = {'jnlp' => ''}
 downloaded_webapps.each do |base, suffix|
   remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
