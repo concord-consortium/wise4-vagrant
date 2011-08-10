@@ -11,11 +11,11 @@ end
 Vagrant::Config.run do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "wise4-4_3-2"
+  config.vm.box = "wise4-4_3-3"
   
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://mysystem.dev.concord.org/wise4/wise4-4_3-2.box"
+  config.vm.box_url = "http://mysystem.dev.concord.org/wise4/wise4-4_3-3.box"
 
   # Assign this VM to a host only network IP, allowing you to access it
   # via the IP.
