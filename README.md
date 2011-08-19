@@ -39,8 +39,8 @@ Then to use it again after halting or destroying just run:
 To update to the latest version of wise4 ssh into the vagrant box and run the ./src/update-wise4.sh script which updates the wise4 portal and vlewrapper projects from subversion, builds them with maven and ant and deploys them to tomcat:
 
     $ vagrant ssh
-    $ vagrant@lucid32:~$ ./src/update-wise4.sh
-    $ vagrant@lucid32:~$ exit
+    vagrant@lucid32:~$ ./src/update-wise4.sh
+    vagrant@lucid32:~$ exit
 
 Then open the wise4 web page:
 
