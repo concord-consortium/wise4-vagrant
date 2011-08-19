@@ -51,6 +51,10 @@ Then try sshing to the vagrant box and running the script which updates the wise
     vagrant@lucid32:~$ exit
     $ open http://localhost:8080/webapp/index.html
 
+WISE4 logs: /var/log/tomcat6/
+
+    $ tail -n 200 -f /var/log/tomcat6/catalina.out
+
 When you are convinced the new base box works upload a copy so that a developer who just wants to work with virtual image of WISE4 trunk can run the top-level Vagrantfile successfully:
 
     $ cd rebuild

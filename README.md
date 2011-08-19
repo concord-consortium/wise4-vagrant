@@ -54,6 +54,10 @@ If you want to get into the VM and work directly with the wise4 instance or the 
 
     $ vagrant ssh
 
+WISE4 logs: /var/log/tomcat6/
+
+    $ tail -n 200 -f /var/log/tomcat6/catalina.out
+
 The wise4-trunk vagrant image includes subversion, maven, ant, emacs, vim
 
 Rebuilding the wise4-trunk base box
