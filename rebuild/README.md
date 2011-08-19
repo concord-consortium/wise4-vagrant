@@ -11,10 +11,12 @@ If it is successful you will be able to open this page in a web browser to see W
  
     open http://localhost:8080/webapp/index.html
 
+After modifying these scripts and confirming that the new base box works correctly you'll want to make a minified vagrant package and upload it for developers using the top-level Vagrantfile.
+
 Repackage the vm built above into a Vagrant box
 =======================================
-
-    cd rebuild
+Before following these steps you need to have a running base box and be in the rebuild dir.
+ 
     vagrant ssh
     > sudo apt-get clean
     > sudo service tomcat6 stop
@@ -36,7 +38,18 @@ Now test the top-level Vagrantfile to make sure it works properly with this new 
     vagrant destroy
     vagrant up
 
-When you are convinced the new box works upload a copy so that a new user you downloads this repo can run the top-level Vagrantfile successfully:
+When the new vagrant instance has finished importing the wise4-trunk base box make sure the wise4 app is running:
+
+    open http://localhost:8080/webapp/index.html
+
+Then try sshing to the vagrant box and running the script which updates the wise4 portal and vlewrapper projects from subversion and deploys them to tomcat:
+
+    $ vagrant ssh
+    vagrant@lucid32:~$ ./src/update-wise4.sh
+    vagrant@lucid32:~$ exit
+    open http://localhost:8080/webapp/index.html
+
+When you are convinced the new base box works upload a copy so that a developer who just wants to work with virtual image of WISE4 trunk can run the top-level Vagrantfile successfully:
 
     cd rebuild
     scp package.box otto.concord.org:/web/mysystem.dev.concord.org/wise4/wise4-trunk.box
