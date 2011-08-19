@@ -18,6 +18,8 @@ Get Started
 
 The first time you do this it will download and cache a 1.2GB vagrant virtual machine image named wise4-trunk which is then used as a base box for the actual vagrant instance you are creating. After the wise4-trunk base box is downloaded and cached recreating your local wise4-trunk base box will be much faster.
 
+The wise4-trunk base box was built using WISE4 vlewrapper svn rev: 2344 and portal svn rev: 3236. The base box includes a script in /home/vagrant/src you can manually run to update the svn checkouts of the portal and vlewrapper projects, build them with maven, and deploy them to tomcat.
+
 After the vagrant up command has completed without error try opening wise4:
 
     $ open http://localhost:8080/webapp/index.html
@@ -30,11 +32,13 @@ When you are done using it and want to save disk space run:
 
     $ vagrant destroy
 
-This command deletes all the data from the virtual machine but does not delete the wise4-trunk base box initially downloaded.
- 
-Then to use it again after halting or destroying just run:
+This command deletes all the data from the virtual machine. If you have updated to the wise4 codebase you will lose these changes but they can be easily restored by running this script on the wise4-trunk vm: /home/vagrant//src/update-wise4.sh.
 
-    vagrant up
+Running vagrant destroy does not delete the wise4-trunk base box initially downloaded.
+ 
+To use the wise4-trunk vm again after halting or destroying just run:
+
+    $ vagrant up
 
 To update to the latest version of wise4 ssh into the vagrant box and run the ./src/update-wise4.sh script which updates the wise4 portal and vlewrapper projects from subversion, builds them with maven and ant and deploys them to tomcat:
 
