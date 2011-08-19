@@ -1,4 +1,4 @@
-This project uses Vagrant to setup a wise4 virtual machine.
+This project uses Vagrant to setup a trunk version of WISE4 virtual machine.
 
 Prerequisites
 =============
@@ -11,24 +11,53 @@ Prerequisites
 Get Started
 ===========
 
-    git clone git://github.com/concord-consortium/wise4-vagrant.git
-    cd wise4-vagrant
-    vagrant up # this will take some time as it downloads a 636mb file
-    open http://localhost:8080/webapp/index.html
+    $ git clone git://github.com/concord-consortium/wise4-vagrant.git
+    $ cd wise4-vagrant
+    $ git checkout --track origin/wise4-trunk
+    $ vagrant up
 
-When you are done using it and want to save disk space
+The first time you do this it will download and cache a 1.2GB vagrant virtual machine image named wise4-trunk which is then used as a base box for the actual vagrant instance you are creating. After the wise4-trunk base box is downloaded and cached recreating your local wise4-trunk base box will be much faster.
 
-    vagrant destroy  # note this will completely remove any data on the virtual machine
+After the vagrant up command has completed without error try opening wise4:
 
-Then to use it again just do
+    $ open http://localhost:8080/webapp/index.html
+
+When you are done using the wise4-trunk vagrant instance run:
+
+    $ vagrant halt
+
+When you are done using it and want to save disk space run:
+
+    $ vagrant destroy
+
+This command deletes all the data from the virtual machine but does not delete the wise4-trunk base box initially downloaded.
+ 
+Then to use it again after halting or destroying just run:
 
     vagrant up
 
-If you want to get into the VM and check it out
+To update to the latest version of wise4 ssh into the vagrant box and run the ./src/update-wise4.sh script which updates the wise4 portal and vlewrapper projects from subversion, builds them with maven and ant and deploys them to tomcat:
 
-    vagrant ssh
+    $ vagrant ssh
+    $ vagrant@lucid32:~$ ./src/update-wise4.sh
+    $ vagrant@lucid32:~$ exit
 
-For more details see http://vagrantup.com
+Then open the wise4 web page:
+
+    $ open http://localhost:8080/webapp/index.html
+
+If you want to get into the VM and work directly with the wise4 instance or the services it depends on:
+
+    $ vagrant ssh
+
+The wise4-trunk vagrant image includes subversion, maven, ant, emacs, vim
+
+Rebuilding the wise4-trunk base box
+===================
+
+If the wise4-trunk base box needs to be updated with additional applications or services change to the rebuild/ directory and follow the instructions in the readme.
+
+For more details on using vagrant see http://vagrantup.com
 
 Add a New Step Type
 ===================
