@@ -5,8 +5,8 @@ template "/var/lib/tomcat6/webapps/vlewrapper/vle/node/setupNodes.js" do
   mode "0644"
 end
 
-cookbook_file "/home/vagrant/reset_wise4_databases.rb" do
-  source "reset_wise4_databases.rb"
+template "/home/vagrant/reset_wise4_databases.rb" do
+  source "reset_wise4_databases.rb.erb"
   owner "vagrant"
   group "vagrant"
   mode "0755"
