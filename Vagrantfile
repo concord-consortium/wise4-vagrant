@@ -40,6 +40,7 @@ Vagrant::Config.run do |config|
 
     # Customize recipes
     chef.json.merge!({ 
+      :mysql => {:server_root_password => "password", :bind_address => '127.0.0.1'},
       :wise4 => { :step_types => wise4_step_types.keys }
     })
   end
