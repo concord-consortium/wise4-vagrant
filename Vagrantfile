@@ -17,6 +17,9 @@ Vagrant::Config.run do |config|
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://mysystem.dev.concord.org/wise4/wise4-trunk.box"
 
+  # the port forwarded from the host machine
+  wise4_port=8080
+
   # Assign this VM to a host only network IP, allowing you to access it
   # via the IP.
   config.vm.network "33.33.33.10"
@@ -41,7 +44,8 @@ Vagrant::Config.run do |config|
     # Customize recipes
     chef.json.merge!({ 
       :mysql => {:server_root_password => "password", :bind_address => '127.0.0.1'},
-      :wise4 => { :step_types => wise4_step_types.keys }
+      :wise4 => { :step_types => wise4_step_types.keys },
+      :wise4_port => wise4_port
     })
   end
 
