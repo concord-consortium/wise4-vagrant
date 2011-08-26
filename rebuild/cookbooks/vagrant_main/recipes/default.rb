@@ -125,6 +125,14 @@ template "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties" do
   notifies :restart, resources(:service => "tomcat")
 end
 
+# also a copy for the update-wise4.sh script
+template "/home/vagrant/portal.properties" do
+  source "portal.properties.erb"
+  owner "tomcat6"
+  group "tomcat6"
+  mode "0644"
+end
+
 # Item 9
 execute "create wise4user user" do
   command "/usr/bin/mysql -u root -p#{node[:mysql][:server_root_password]} -e \"CREATE USER 'wise4user'@'localhost' identified by 'wise4pass'\""
