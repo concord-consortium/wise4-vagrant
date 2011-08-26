@@ -11,3 +11,10 @@ template "/home/vagrant/reset_wise4_databases.rb" do
   group "vagrant"
   mode "0755"
 end
+
+cookbook_file "/home/vagrant/wise4-createtables-for-vle-database.sql" do
+  source "wise4-createtables-for-vle-database.sql"
+  owner "vagrant"
+  group "vagrant"
+  mode "0644"
+end

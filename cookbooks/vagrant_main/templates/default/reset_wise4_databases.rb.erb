@@ -21,6 +21,7 @@ system "mysql -u root -p<%= node['mysql']['server_root_password'] %> -e\"#{sql}\
 tels_path = "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/tels"
 system "mysql sail_database -u root -p<%= node['mysql']['server_root_password'] %> < #{tels_path}/wise4-createtables.sql"
 system "mysql sail_database -u root -p<%= node['mysql']['server_root_password'] %> < #{tels_path}/wise4-initial-data.sql"
+system "mysql vle_database -u root -p<%= node['mysql']['server_root_password'] %> < /home/vagrant/wise4-createtables-for-vle-database.sql"
 
 # start tomcat
 system "sudo service tomcat6 start"
