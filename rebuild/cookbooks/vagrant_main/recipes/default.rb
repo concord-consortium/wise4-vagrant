@@ -88,6 +88,8 @@ end
 
 cookbook_file "/home/vagrant/src/update-wise4.sh" do
   source "update-wise4.sh"
+  owner "vagrant"
+  group "vagrant"
   mode "0755"
 end
 
