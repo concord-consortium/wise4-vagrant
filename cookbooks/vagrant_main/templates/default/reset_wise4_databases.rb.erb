@@ -2,10 +2,9 @@
 # restores WISE4 databases to pristine state (same as a new wise4 install)
 #
 
-# stop tomcat
 system "sudo service tomcat6 stop"
 
-# drop and recreate the wise4 databases
+puts "drop and recreate the wise4 databases"
 sql= <<-SQL
 drop database if exists sail_database;
 create database sail_database;
@@ -17,10 +16,9 @@ flush privileges;
 SQL
 system "mysql -u root -p<%= node['mysql']['server_root_password'] %> -e\"#{sql}\""
 
-# load the initial data into the sail_database
+puts "load the initial data into the sail_database"
 tels_path = "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/tels"
 system "mysql sail_database -u root -p<%= node['mysql']['server_root_password'] %> < #{tels_path}/wise4-createtables.sql"
 system "mysql sail_database -u root -p<%= node['mysql']['server_root_password'] %> < #{tels_path}/wise4-initial-data.sql"
 
-# start tomcat
 system "sudo service tomcat6 start"
