@@ -1,5 +1,7 @@
 require 'yaml'
 
+STEP_SOURCE='/var/lib/wise4/steps/'
+
 wise4_step_types_path = File.expand_path('../wise4-step-types.yml', __FILE__)
 
 if File.exists?(wise4_step_types_path)
@@ -31,7 +33,7 @@ Vagrant::Config.run do |config|
   config.vm.forward_port "http", 8080, 8080
 
   wise4_step_types.each{ |name, dir|
-    config.vm.share_folder(name.downcase, "/var/lib/tomcat6/webapps/vlewrapper/vle/node/#{name.downcase}", dir)
+    config.vm.share_folder(name.downcase, "#{STEP_SOURCE}#{name.downcase}", dir)
   }
 
   config.vm.provision :chef_solo do |chef|

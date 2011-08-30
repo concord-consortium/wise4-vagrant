@@ -1,4 +1,12 @@
 WEBAPPS_PATH = "/var/lib/tomcat6/webapps"
+STEP_SOURCE='/var/lib/wise4/steps/'
+directory "#{STEP_SOURCE}" do
+  owner "vagrant"
+  group "vagrant"
+  mode "0755"
+  action :create
+  recursive true
+end
 
 template "#{WEBAPPS_PATH}/vlewrapper/vle/node/setupNodes.js" do
   source "setupNodes.js.erb"
