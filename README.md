@@ -4,15 +4,21 @@ This project uses Vagrant to setup a trunk version of WISE4 virtual machine.
 
 - ruby - on OS X this is already installed
 - git
-- vagrant - run "sudo gem install vagrant" (rvm users: normally you will not use sudo)
+- [rvm](http://beginrescueend.com/)  `bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)` <D-x>http://beginrescueend.com/
+- rake `gem install rake`
+- [bundler](http://gembundler.com/) `gem install bundler` 
 - virtualbox 4.1 - http://www.virtualbox.org/wiki/Downloads
+- Access to Amazon Web Services Cloud Compute [(ec2)](http://aws.amazon.com/)
 
 # Get Started
 
     $ git clone git://github.com/concord-consortium/wise4-vagrant.git
     $ cd wise4-vagrant
-    $ git checkout --track origin/wise4-trunk
-    $ vagrant up
+    $ git checkout --track origin/wise4-ec2
+    $ cp ./rvmrc.sample ./.rvrc
+    $ cd ..; cd wise4-vagrant
+    $ bundle install --binstubs
+    $ # TBD: vagrant up
 
 The first time you do this it will download and cache a 1.2GB vagrant virtual machine image named wise4-trunk which is then used as a base box for the actual vagrant instance you are creating. After the wise4-trunk base box is downloaded and cached recreating your local wise4-trunk base box will be much faster.
 
