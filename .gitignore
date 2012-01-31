@@ -7,4 +7,4 @@ bin
 .rvmrc
 *.pem
 .fog
-fog.config
+credentials.config
