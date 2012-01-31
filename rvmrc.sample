@@ -1,0 +1,2 @@
+# cp ./rvmrc.sample ./.rvmrc
+rvm use ruby-1.9.2-p290@cloud_wise --create
