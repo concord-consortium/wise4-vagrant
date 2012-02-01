@@ -153,3 +153,20 @@ For more details on using vagrant see http://vagrantup.com
 
 The values in the hashmap of Vagrantfile can be relative or paths.  Directories which are symlinks don't work because
 the directories need to be mounted into the VM, and symlinks don't work for that.
+
+## Amazon EC2 instructions ##
+
+### using Thor ###
+
+Tpying "`thor cloud`"  or "`thor -T`" will show you a list of available
+commands to provision, view, and modify Amazon EC2 VM instances.
+
+
+    thor cloud
+    Tasks:
+      thor cloud:help [TASK]  # Describe available tasks or one specific task
+      thor cloud:list         # list existing servers
+      thor cloud:new          # create a new server
+      thor cloud:ssh [id]     # ssh to the machine with [id]
+      thor cloud:stop         # stop all servers
+
