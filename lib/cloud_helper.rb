@@ -79,6 +79,18 @@ class CloudHelper
     @connection.servers.all.select { |s| s.tags[tag] == value }
   end
 
+  # returns the ssh string to connect to the host
+  def ssh_command(id)
+    server = @connection.servers.get(id)
+    "ssh -i #{self.key_path} #{self.login_user}@#{server.public_ip_address}"
+  end
+  
+  # opens an interactive ssh console
+  def open_ssh(id)
+    command = ssh_command(id)
+    exec (command)
+  end
+
   def list_servers
     # running_servers.table([:id, :flavor_id, :public_ip_address, :image_id])
     puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
@@ -88,7 +100,7 @@ class CloudHelper
         "AIM",
         "ssh commandline"
     running_servers.each do |server|
-      ssh_command = "ssh -i #{self.key_path} #{self.login_user}@#{server.public_ip_address}"
+      ssh_command = ssh_command(server.id)
       puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
           server.id,
           server.flavor_id,
@@ -96,11 +108,6 @@ class CloudHelper
           server.image_id,
           ssh_command
     end
-  end
-
-  def connect_to_server
-    server = running_servers.first
-    puts server.ssh('ls -la').inspect
   end
 
   def create_server
@@ -130,8 +137,3 @@ class CloudHelper
   end
 
 end
-
-helper = CloudHelper.new
-helper.list_servers
-# helper.terminate_all
-helper.create_server

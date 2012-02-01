@@ -19,5 +19,12 @@ class Cloud < Thor
     helper = CloudHelper.new
     helper.terminate_all
   end
+
+  desc "ssh [id]", "ssh to the machine with [id]"
+  def ssh(id)
+    helper = CloudHelper.new
+    helper.open_ssh(id)
+  end
+
 end
 
