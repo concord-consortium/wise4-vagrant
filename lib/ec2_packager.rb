@@ -11,16 +11,16 @@ class EC2Packager
     self.generate_dna_files
   end
 
+  def cookbook_directory
+    File.join(@vagrant_root,"cookbooks")
+  end
+
   def cookbook_archive_file
-    File.join(@vagrant_root,'cookbooks.tgz')
+    "#{cookbook_directory}.tgz"
   end
 
   def dna_file
     File.join(@vagrant_root,'dna.json')
-  end
-
-  def recipe_list_file
-    File.join(@vagrant_root,'.recipe_list')
   end
 
   def cookbooks_json_path
@@ -28,9 +28,10 @@ class EC2Packager
   end
 
   def create_tarfile
-    self.write_recipe_list_file()
     cd do
-      tar_command = "tar czf #{cookbook_archive_file} --files-from #{recipe_list_file} 2> /dev/null"
+      # hack to make tarfile use relative paths ..
+      dir = cookbook_directory.gsub(@vagrant_root,'').gsub(/^\//,'')
+      tar_command = "tar czf #{cookbook_archive_file} #{dir} 2> /dev/null"
       %x[#{tar_command}]
     end
   end
@@ -52,29 +53,6 @@ class EC2Packager
         file_name.gsub('recipe', '').gsub(/(\[|\])/, '').gsub(/::.*$/, '')
       }
       @recipe_names.uniq!
-    end
-  end
-
-  def write_recipe_list_file
-    cd do
-      open(recipe_list_file, 'w') do |f|
-        f.puts @recipe_names.map{ |x|
-          paths = @cookbook_paths.map do|cookbook_path|
-            "#{cookbook_path}/#{x}"
-          end
-
-          # strip full paths to relative file paths:
-          paths.map! { |path| path.gsub(@vagrant_root,'').gsub(/^\//,"") }
-          paths.reject!{|path| not File.exists?(path)}
-          if paths.length > 1
-            raise "Multiple cookbooks '#{x}' exist within `chef.cookbooks_path`; I'm not sure which one to use"
-          end
-          if 0 == paths.length
-            raise "I can't find any recipes for '#{x}'"
-          end
-          paths[0]
-        }
-      end
     end
   end
 
