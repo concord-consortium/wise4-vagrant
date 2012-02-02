@@ -1,5 +1,15 @@
 # this from the instructions here: http://code.google.com/p/wise4/wiki/StableWISEDeploymentModel
 
+# Create the vagrant user
+
+user "vagrant" do
+  comment "vagrant user for vagrant/ec2 deploy convergence."
+  system true
+  home "/home/vagrant"
+  shell "/bin/false"
+end
+
+
 # Item 1 
 include_recipe "apt"
 include_recipe "mysql::server"
