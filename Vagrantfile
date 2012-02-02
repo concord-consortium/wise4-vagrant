@@ -24,13 +24,13 @@ Vagrant::Config.run do |config|
 
   # Assign this VM to a host only network IP, allowing you to access it
   # via the IP.
-  config.vm.network "33.33.33.10"
+  config.vm.network :host_only, "33.33.33.10"
 
   # Forward a port from the guest to the host, which allows for outside
   # computers to access the VM, whereas host only networking does not.
   # NOTE: this port 8080 is hard coded into some of the wise4 settings files
   #   so changing it might break somethings. 
-  config.vm.forward_port "http", 8080, 8080
+  config.vm.forward_port 8080, 8080
 
   wise4_step_types.each{ |name, dir|
     config.vm.share_folder(name.downcase, "#{STEP_SOURCE}#{name.downcase}", dir)
