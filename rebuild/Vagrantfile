@@ -10,11 +10,12 @@ Vagrant::Config.run do |config|
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://files.vagrantup.com/lucid32.box"
 
-  config.vm.customize do |vm|
-    vm.name = "Wise4-trunk"
-    vm.memory_size = 512
-  end
-
+  # config.vm.customize do |vm|
+  #   vm.name = "Wise4-trunk"
+  #   vm.memory_size = 512
+  # end
+  config.vm.customize ["modifyvm", :id, "--memory", "512"]
+  config.vm.customize ["modifyvm", :id, "--name",   "Wise4-trunk"]
   # the port forwarded from the host machine
   wise4_port=8080
 
@@ -68,7 +69,7 @@ Vagrant::Config.run do |config|
       f.puts JSON.generate([chef.cookbooks_path]
                              .flatten
                              .map{|x| File.expand_path(x)})
-  end
+    end
 
-end
+  end
 end
