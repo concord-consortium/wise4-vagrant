@@ -26,7 +26,7 @@ class CloudHelper
 
   def initialize(configuration_file=CloudHelper.config_file)
     #TODO: we need a way to specify vagrant root better...
-    @vagrant_root = Dir.pwd()
+    @vagrant_root = File.join(Dir.pwd(),'rebuild')
     @config = YAML::load(File.open(configuration_file))
     Fog.credentials_path = CloudHelper.config_file("credentials.config")
     @connection = Fog::Compute.new(:provider => 'AWS')
