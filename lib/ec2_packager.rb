@@ -8,7 +8,6 @@ class EC2Packager
 
   def initialize(_path=".")
     @vagrant_root = File.expand_path(_path)
-    @recipe_list_file = ".recipe_list"
     self.generate_dna_files
   end
 
@@ -20,10 +19,18 @@ class EC2Packager
     File.join(@vagrant_root,'dna.json')
   end
 
+  def recipe_list_file
+    File.join(@vagrant_root,'.recipe_list')
+  end
+
+  def cookbooks_json_path
+    File.join(@vagrant_root, '.cookbooks_path.json')
+  end
+
   def create_tarfile
     self.write_recipe_list_file()
     cd do
-      tar_command = "tar czf #{cookbook_archive_file} --files-from #{@recipe_list_file} 2> /dev/null"
+      tar_command = "tar czf #{cookbook_archive_file} --files-from #{recipe_list_file} 2> /dev/null"
       %x[#{tar_command}]
     end
   end
@@ -39,7 +46,7 @@ class EC2Packager
         puts "failed to run vagrant: #{results}"
         exit 1
       end
-      @cookbook_paths = [JSON.parse(open('.cookbooks_path.json').read)].flatten
+      @cookbook_paths = [JSON.parse(open(cookbooks_json_path).read)].flatten
       @recipe_names = JSON.parse(open(dna_file).read)["run_list"]
       @recipe_names.map! { |file_name|
         file_name.gsub('recipe', '').gsub(/(\[|\])/, '').gsub(/::.*$/, '')
@@ -50,7 +57,7 @@ class EC2Packager
 
   def write_recipe_list_file
     cd do
-      open(@recipe_list_file, 'w') do |f|
+      open(recipe_list_file, 'w') do |f|
         f.puts @recipe_names.map{ |x|
           paths = @cookbook_paths.map do|cookbook_path|
             "#{cookbook_path}/#{x}"
