@@ -156,6 +156,17 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 
 ## Amazon EC2 instructions ##
 
+### Ideal Instructions (not there yet) ###
+1. get your amazon keys
+2. `cp config/credentials.config.sample config/credentials.config`
+3. thor cloud:new
+
+### TODO: ###
+* auto-generate and download key-pairs
+* ensure that wise is setup(!)
+* ensure that thor can work for different vagrant directoriess
+* update to GITHUB wise source deployment
+
 ### using Thor ###
 
 Tpying "`thor cloud`"  or "`thor -T`" will show you a list of available
