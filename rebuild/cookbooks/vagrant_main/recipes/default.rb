@@ -18,6 +18,7 @@ include_recipe "maven"
 include_recipe "subversion"
 include_recipe "emacs"
 include_recipe "vim"
+include_recipe "git"
 
 script "set locale and timezone" do
   interpreter "bash"
@@ -64,18 +65,18 @@ directory WISE4_SRC_PATH do
    recursive true
 end
 
-subversion "WISE4 sailportal:trunk:portal" do
-  repository "http://sailportal.googlecode.com/svn/trunk/portal"
-  revision "HEAD"
+git "WISE4 sailportal:trunk:portal" do
+  repository "git://github.com/concord-consortium/WISE-Portal.git"
+  reference "master"
   destination "#{WISE4_SRC_PATH}/portal"
   user "vagrant"
   group "vagrant"
   action :sync
 end
 
-subversion "WISE4 sail-web:trunk:vlewrapper" do
-  repository "http://sail-web.googlecode.com/svn/trunk/vlewrapper"
-  revision "HEAD"
+git "WISE4 sail-web:trunk:vlewrapper" do
+  repository "https://github.com/WISE-Community/WISE-VLE.git"
+  reference "master"
   destination "#{WISE4_SRC_PATH}/vlewrapper"
   user "vagrant"
   group "vagrant"
