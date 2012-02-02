@@ -1,5 +1,6 @@
 require 'fog'
 require 'yaml'
+require 'ec2_packager'
 
 class CloudHelper
 
@@ -8,6 +9,12 @@ class CloudHelper
   DefaultUser     = 'ubuntu'
   DefaultAmiImage = 'ami-57588e3e'
   DefaultName     = 'wise_ec2'
+  DefaultTimeout  = 1000 * 60 * 10   # 5 minutes
+  StateFile       = '/tmp/cloud_state'
+
+  # Taken from config/bootrap.sh
+  CHEF_COOKBOOK_PATH   = "/tmp/cheftime/cookbooks"
+  CHEF_FILE_CACHE_PATH = "/tmp/cheftime"
 
   def self.config_dir
     File.expand_path(File.join(File.dirname(__FILE__),"../config/"))
@@ -18,6 +25,8 @@ class CloudHelper
   end
 
   def initialize(configuration_file=CloudHelper.config_file)
+    #TODO: we need a way to specify vagrant root better...
+    @vagrant_root = Dir.pwd()
     @config = YAML::load(File.open(configuration_file))
     Fog.credentials_path = CloudHelper.config_file("credentials.config")
     @connection = Fog::Compute.new(:provider => 'AWS')
@@ -80,14 +89,14 @@ class CloudHelper
   end
 
   # returns the ssh string to connect to the host
-  def ssh_command(id)
+  def ssh_cli_string(id)
     server = @connection.servers.get(id)
     "ssh -i #{self.key_path} #{self.login_user}@#{server.public_ip_address}"
   end
   
   # opens an interactive ssh console
   def open_ssh(id)
-    command = ssh_command(id)
+    command = ssh_cli_string(id)
     exec (command)
   end
 
@@ -95,19 +104,23 @@ class CloudHelper
     # running_servers.table([:id, :flavor_id, :public_ip_address, :image_id])
     puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
         "instance id",
-        "flavor id",
+        "state",
         "public IP",
-        "AIM",
+        "AMI",
         "ssh commandline"
     running_servers.each do |server|
-      ssh_command = ssh_command(server.id)
+      ssh_cli_string = ssh_cli_string(server.id)
       puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
           server.id,
-          server.flavor_id,
+          state(server),
           server.public_ip_address,
           server.image_id,
-          ssh_command
+          ssh_cli_string
     end
+  end
+
+  def boot_data
+    @boot_data ||= File.open(CloudHelper.config_file("bootstrap.sh")).read()
   end
 
   def create_server
@@ -116,18 +129,68 @@ class CloudHelper
 
     #TODO: This is weird place to create a security group
     group = make_group
-    server = @connection.servers.create(
+    server = @connection.servers.bootstrap(
       # :image_id => 'ami-245fac4d',
       :image_id   => self.ami_image,
       :user_name  => self.login_user,
+      :username   => self.login_user,
       :key_name   => self.key_name,
+      :private_key_path => self.key_path,
       :flavor_id  => 'm1.small',
       :groups     => [self.security_group_name],
+      :user_data  => self.boot_data,
       :tags => {
         :created_by  => "cloud_setup",
         :remote_user => user,
         :Name => "wise_ec2"
     })
+    server.wait_for(DefaultTimeout) do
+      server.ready?
+    end
+    state(server, "bootstrap")
+    provision(server)
+  end
+ 
+  def provision(server)
+    if server.kind_of? String
+      server = @connection.servers.get(server)
+    end
+    copy_chef_files(server)
+    run_chef(server)
+    state(server, "complete")
+  end
+
+  def copy_chef_files(server)
+    packager = EC2Packager.new(@vagrant_root)
+    packager.create_tarfile
+    server.scp(packager.cookbook_archive_file,".")
+    server.scp(packager.dna_file,".")
+    state(server,"files-copied")
+  end
+
+  def ssh(server, command)
+    results = server.ssh(command)
+    if results.first.status > 0
+      puts results.first.stdout
+      puts results.first.stderr
+    end
+    results.first.stdout.chomp
+  end
+
+  def sudo(server, command)
+    ssh server, "sudo sh -c '#{command}'"
+  end
+
+  def run_chef(server)
+    state(server, "chef_start")
+    chef_solo = ssh server, 'which chef-solo'
+    unless chef_solo =~ /chef-solo/
+      raise "can't find chef solo: #{chef_solo}"
+    end
+    sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/cookbooks.tgz ."
+    sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/dna.json ."
+    sudo server, "cd #{CHEF_FILE_CACHE_PATH} && #{chef_solo} -c solo.rb -j dna.json -r cookbooks.tgz"
+    state(server, "chef_done")
   end
 
   def terminate_all
@@ -136,4 +199,36 @@ class CloudHelper
     end
   end
 
+  def wait_for_state(server,state)
+    result = server.wait_for(DefaultTimeout) do
+      state_for_server == state
+    end
+    unless result
+      raise "time out wiating for #{state}"
+    end
+  end
+
+  def state(server,state=nil)
+    return "waiting" unless server.ready?
+    if state
+      puts state
+      results = server.ssh("echo #{state} > #{StateFile}")
+    else
+      results = server.ssh("cat #{StateFile}")
+    end
+    if results && results.size > 0
+      if results.first.status == 0
+        return results.first.stdout.chomp
+      else
+        return "error"
+      end
+    else
+      return "unkown"
+    end
+  end
+
+  def set_state(id,state)
+    server = @connection.servers.get(id)
+    state(server,state)
+  end
 end
