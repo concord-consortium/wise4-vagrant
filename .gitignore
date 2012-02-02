@@ -8,3 +8,7 @@ bin
 *.pem
 .fog
 credentials.config
+dna.json
+.cookbooks_path.json
+.recipe_list
+cookbooks.tgz
