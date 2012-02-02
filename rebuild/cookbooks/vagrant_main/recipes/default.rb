@@ -6,7 +6,6 @@ user "vagrant" do
   comment "vagrant user for vagrant/ec2 deploy convergence."
   system true
   home "/home/vagrant"
-  shell "/bin/false"
 end
 
 
