@@ -49,6 +49,20 @@ Vagrant::Config.run do |config|
       :wise4 => { :step_types => wise4_step_types.keys },
       :wise4_port => wise4_port
     })
+
+    # added to write config data for Amazon EC2 provisioning
+    # see the documentation here: https://github.com/lynaghk/vagrant-ec2
+    require 'json'
+    open('dna.json', 'w') do |f|
+      chef.json[:run_list] = chef.run_list
+      f.write chef.json.to_json
+    end
+      open('.cookbooks_path.json', 'w') do |f|
+      f.puts JSON.generate([chef.cookbooks_path]
+                             .flatten
+                             .map{|x| File.expand_path(x)})
+    end
+
   end
 
 end
