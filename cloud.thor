@@ -14,22 +14,34 @@ class Cloud < Thor
     helper.create_server
   end
 
-  desc "provision [id]", "provision an existing server"
-  def provision(id)
+  desc "provision (id)", "provision an existing server"
+  def provision(id=nil)
     helper = CloudHelper.new
-    helper.provision(id)
+    if id
+      helper.provision(id)
+    else
+      helper.provision()
+    end
   end
 
-  desc "stop", "stop all servers"
-  def stop
+  desc "stop (id)", "stop all servers"
+  def stop(id=nil)
     helper = CloudHelper.new
-    helper.terminate_all
+    if id
+      helper.trerminate(id)
+    else
+      helper.terminate_all
+    end
   end
 
-  desc "ssh [id]", "ssh to the machine with [id]"
-  def ssh(id)
+  desc "ssh (id)", "ssh to the machine with [id]"
+  def ssh(id=nil)
     helper = CloudHelper.new
-    helper.open_ssh(id)
+    if id
+      helper.open_ssh(id)
+    else
+      helper.open_ssh(id)
+    end 
   end
 
   desc "state [id][state]", "manually set the [state] for machine [id]"
