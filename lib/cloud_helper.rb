@@ -16,13 +16,6 @@ class CloudHelper
   CHEF_COOKBOOK_PATH   = "/tmp/cheftime/cookbooks"
   CHEF_FILE_CACHE_PATH = "/tmp/cheftime"
 
-  def self.config_dir
-    File.expand_path(File.join(File.dirname(__FILE__),"../config/"))
-  end
-
-  def self.config_file(filename="cloud.config")
-    File.join(self.config_dir,filename)
-  end
 
   def initialize(configuration_file=CloudHelper.config_file)
     #TODO: we need a way to specify vagrant root better...
@@ -30,6 +23,94 @@ class CloudHelper
     @config = YAML::load(File.open(configuration_file))
     Fog.credentials_path = CloudHelper.config_file("credentials.config")
     @connection = Fog::Compute.new(:provider => 'AWS')
+  end
+
+  # opens an interactive ssh console
+  def open_ssh(id=@connection.servers.first)
+    command = ssh_cli_string(id)
+    exec (command)
+  end
+
+  def list_servers
+    # running_servers.table([:id, :flavor_id, :public_ip_address, :image_id])
+    puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
+        "instance id",
+        "state",
+        "public IP",
+        "AMI",
+        "ssh commandline"
+    running_servers.each do |server|
+      ssh_cli_string = ssh_cli_string(server.id)
+      puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
+          server.id,
+          state(server),
+          server.public_ip_address,
+          server.image_id,
+          ssh_cli_string
+    end
+  end
+
+  def create_server
+    key_name = Fog.credentials[:key_name]
+    user = ENV['USER'] || env['USERNAME'] || 'unknown'
+
+    #TODO: This is weird place to create a security group
+    group = make_group
+    server = @connection.servers.bootstrap(
+      # :image_id => 'ami-245fac4d',
+      :image_id   => self.ami_image,
+      :user_name  => self.login_user,
+      :username   => self.login_user,
+      :key_name   => self.key_name,
+      :private_key_path => self.key_path,
+      :flavor_id  => 'm1.small',
+      :groups     => [self.security_group_name],
+      :user_data  => self.boot_data,
+      :tags => {
+        :created_by  => "cloud_setup",
+        :remote_user => user,
+        :Name => "wise_ec2"
+    })
+    server.wait_for(DefaultTimeout) do
+      server.ready?
+    end
+    state(server, "bootstrap")
+    provision(server)
+  end
+ 
+  def provision(server=@connection.servers.first)
+    if server.kind_of? String
+      server = @connection.servers.get(server)
+    end
+    copy_chef_files(server)
+    run_chef(server)
+    state(server, "complete")
+  end
+
+  def set_state(id,state)
+    server = @connection.servers.get(id)
+    state(server,state)
+  end
+
+  def terminate(id)
+    server = @connection.servers.get(id)
+    server.destroy
+  end
+
+  def terminate_all
+    running_servers.each do |server|
+      server.destroy
+    end
+  end
+
+  protected
+
+  def self.config_dir
+    File.expand_path(File.join(File.dirname(__FILE__),"../config/"))
+  end
+
+  def self.config_file(filename="cloud.config")
+    File.join(self.config_dir,filename)
   end
 
   def security_group_name
@@ -94,70 +175,8 @@ class CloudHelper
     "ssh -i #{self.key_path} #{self.login_user}@#{server.public_ip_address}"
   end
   
-  # opens an interactive ssh console
-  def open_ssh(id)
-    command = ssh_cli_string(id)
-    exec (command)
-  end
-
-  def list_servers
-    # running_servers.table([:id, :flavor_id, :public_ip_address, :image_id])
-    puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
-        "instance id",
-        "state",
-        "public IP",
-        "AMI",
-        "ssh commandline"
-    running_servers.each do |server|
-      ssh_cli_string = ssh_cli_string(server.id)
-      puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
-          server.id,
-          state(server),
-          server.public_ip_address,
-          server.image_id,
-          ssh_cli_string
-    end
-  end
-
   def boot_data
     @boot_data ||= File.open(CloudHelper.config_file("bootstrap.sh")).read()
-  end
-
-  def create_server
-    key_name = Fog.credentials[:key_name]
-    user = ENV['USER'] || env['USERNAME'] || 'unknown'
-
-    #TODO: This is weird place to create a security group
-    group = make_group
-    server = @connection.servers.bootstrap(
-      # :image_id => 'ami-245fac4d',
-      :image_id   => self.ami_image,
-      :user_name  => self.login_user,
-      :username   => self.login_user,
-      :key_name   => self.key_name,
-      :private_key_path => self.key_path,
-      :flavor_id  => 'm1.small',
-      :groups     => [self.security_group_name],
-      :user_data  => self.boot_data,
-      :tags => {
-        :created_by  => "cloud_setup",
-        :remote_user => user,
-        :Name => "wise_ec2"
-    })
-    server.wait_for(DefaultTimeout) do
-      server.ready?
-    end
-    state(server, "bootstrap")
-    provision(server)
-  end
- 
-  def provision(server)
-    if server.kind_of? String
-      server = @connection.servers.get(server)
-    end
-    copy_chef_files(server)
-    run_chef(server)
-    state(server, "complete")
   end
 
   def copy_chef_files(server)
@@ -181,7 +200,7 @@ class CloudHelper
     ssh server, "sudo sh -c '#{command}'"
   end
 
-  def run_chef(server)
+  def run_chef(server=@connection.servers.first)
     state(server, "chef_start")
     chef_solo = ssh server, 'which chef-solo'
     unless chef_solo =~ /chef-solo/
@@ -191,12 +210,6 @@ class CloudHelper
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/dna.json ."
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && #{chef_solo} -c solo.rb -j dna.json -r cookbooks.tgz"
     state(server, "chef_done")
-  end
-
-  def terminate_all
-    running_servers.each do |server|
-      server.destroy
-    end
   end
 
   def wait_for_state(server,state)
@@ -227,8 +240,4 @@ class CloudHelper
     end
   end
 
-  def set_state(id,state)
-    server = @connection.servers.get(id)
-    state(server,state)
-  end
 end
