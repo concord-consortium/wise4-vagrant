@@ -4,9 +4,12 @@
 
 user "vagrant" do
   comment "vagrant user for vagrant/ec2 deploy convergence."
-  system true
-  home "/home/vagrant"
+  shell "/bin/bash"
+  home "/home/vagrant/"
+  supports :manage_home => true
 end
+
+
 
 
 # Item 1 
@@ -85,14 +88,18 @@ end
 
 build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
 build_webapps.each do |dir, war_name|
+  
   script "build #{dir}:#{war_name}.war with maven and install" do
     interpreter "bash"
     user "vagrant"
-    code <<-EOH
-    cd #{WISE4_SRC_PATH}/#{dir}
-    mvn -Dmaven.test.skip=true package
-    sudo cp target/#{war_name}.war #{WEBAPPS_PATH}
-    EOH
+    cwd "#{WISE4_SRC_PATH}/#{dir}"
+    code "mvn -Dmaven.test.skip=true package"
+  end
+
+  script "install war file for #{war_name}" do
+    interpreter "bash"
+    user "tomcat6"
+    code "cp #{WISE4_SRC_PATH}/#{dir}/target/#{war_name}.war #{WEBAPPS_PATH}"
   end
 end
 
@@ -104,16 +111,16 @@ cookbook_file "/home/vagrant/src/update-wise4.sh" do
 end
 
 # Item 5
-downloaded_webapps = {'jnlp' => ''}
-downloaded_webapps.each do |base, suffix|
-  remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
-    source "http://wise4.org/downloads/software/#{base}#{suffix}.war"
-    mode "0644"
-    notifies :restart, resources(:service => "tomcat")
-    # check if each of the app folders exists when they are unpacked these folders are created
-    not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
-  end
-end
+# downloaded_webapps = {'jnlp' => ''}
+# downloaded_webapps.each do |base, suffix|
+#   remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
+#     source "http://wise4.org/downloads/software/#{base}#{suffix}.war"
+#     mode "0644"
+#     notifies :restart, resources(:service => "tomcat")
+#     # check if each of the app folders exists when they are unpacked these folders are created
+#     not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
+#   end
+# end
 
 # Item 6
 # need to force a catalina restart so the wars get exploded
