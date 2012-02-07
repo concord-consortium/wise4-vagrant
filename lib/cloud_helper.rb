@@ -234,10 +234,12 @@ class CloudHelper
 
   def run_chef(server=@connection.servers.first)
     state(server, "chef_start")
-    chef_solo = ssh server, 'which chef-solo'
-    unless chef_solo =~ /chef-solo/
-      raise "can't find chef solo: #{chef_solo}"
-    end
+    # TODO: find it the correct way ...
+    chef_solo = "/var/lib/gems/1.8/bin/chef-solo"
+    # chef_solo = ssh server, 'which chef-solo'
+    # unless chef_solo =~ /chef-solo/
+    #   puts "can't find chef solo: #{chef_solo}"
+    # end
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/cookbooks.tgz ."
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/dna.json ."
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && #{chef_solo} -c solo.rb -j dna.json -r cookbooks.tgz"
