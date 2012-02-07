@@ -15,6 +15,9 @@ class CloudHelper
   # Taken from config/bootrap.sh
   CHEF_COOKBOOK_PATH   = "/tmp/cheftime/cookbooks"
   CHEF_FILE_CACHE_PATH = "/tmp/cheftime"
+  
+  # TODO: WISE image specific
+  VLE_NODE_DIR='/var/lib/tomcat6/webapps/vlewrapper/vle/node/'
 
 
   def initialize(configuration_file=CloudHelper.config_file)
@@ -23,6 +26,12 @@ class CloudHelper
     @config = YAML::load(File.open(configuration_file))
     Fog.credentials_path = CloudHelper.config_file("credentials.config")
     @connection = Fog::Compute.new(:provider => 'AWS')
+
+    if File.exists?(CloudHelper.wise4_step_types_path)
+      @wise4_step_types = YAML.load_file(CloudHelper.wise4_step_types_path)
+    else
+      @wise4_step_types = {}
+    end
   end
 
   # opens an interactive ssh console
@@ -71,9 +80,6 @@ class CloudHelper
         :remote_user => user,
         :Name => "wise_ec2"
     })
-    server.wait_for(DefaultTimeout) do
-      server.ready?
-    end
     state(server, "bootstrap")
     provision(server)
   end
@@ -97,6 +103,23 @@ class CloudHelper
     server.destroy
   end
 
+  def rsync(id)
+    ssh_cmd = ssh_cli_string(id)
+    puts "synching wise 4 steps #{@wise4_step_types.inspect}"
+    @wise4_step_types.each{ |name, dir |
+      remote_path = "#{VLE_NODE_DIR}#{name.downcase}"
+      puts "remote path: #{remote_path}"
+      puts "local path : #{dir}"
+      server = @connection.servers.get(id)
+      # make sure vagrant can write to the file.
+      self.sudo server, "chown -R #{self.login_user} #{remote_path}"
+      rsync_cmd = %[rsync -rtzPu -e "ssh -i #{self.key_path}" #{dir} #{self.login_user}@#{server.public_ip_address}:#{remote_path}]
+      puts "command: #{rsync_cmd}"
+      results = %x[#{rsync_cmd}]
+      puts "results: #{results}"
+    }
+  end
+
   def terminate_all
     running_servers.each do |server|
       server.destroy
@@ -105,8 +128,16 @@ class CloudHelper
 
   protected
 
+  def self.dir
+    File.dirname(__FILE__)
+  end
+
   def self.config_dir
-    File.expand_path(File.join(File.dirname(__FILE__),"../config/"))
+    File.expand_path(File.join(self.dir,"../config/"))
+  end
+
+  def self.wise4_step_types_path
+      File.expand_path(File.join(self.dir,'../wise4-step-types.yml'))
   end
 
   def self.config_file(filename="cloud.config")
@@ -174,7 +205,8 @@ class CloudHelper
     server = @connection.servers.get(id)
     "ssh -i #{self.key_path} #{self.login_user}@#{server.public_ip_address}"
   end
-  
+
+
   def boot_data
     @boot_data ||= File.open(CloudHelper.config_file("bootstrap.sh")).read()
   end

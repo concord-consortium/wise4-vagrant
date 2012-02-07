@@ -44,6 +44,12 @@ class Cloud < Thor
     end 
   end
 
+  desc "rsync (id)", "push local (wise4-step-types.yml) files to remote machine (id)"
+  def rsync(id=nil)
+    helper = CloudHelper.new
+    helper.rsync(id) 
+  end
+
   desc "state [id][state]", "manually set the [state] for machine [id]"
   def state(id,state)
     helper = CloudHelper.new
