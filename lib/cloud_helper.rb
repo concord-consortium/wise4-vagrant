@@ -113,7 +113,7 @@ class CloudHelper
       server = @connection.servers.get(id)
       # make sure vagrant can write to the file.
       self.sudo server, "chown -R #{self.login_user} #{remote_path}"
-      rsync_cmd = %[rsync -rtzPu -e "ssh -i #{self.key_path}" #{dir} #{self.login_user}@#{server.public_ip_address}:#{remote_path}]
+      rsync_cmd = %[rsync -rtzPu -e "ssh -i #{self.key_path}" #{dir} #{self.login_user}@#{server.public_ip_address}:#{File.dirname(remote_path)}]
       puts "command: #{rsync_cmd}"
       results = %x[#{rsync_cmd}]
       puts "results: #{results}"
