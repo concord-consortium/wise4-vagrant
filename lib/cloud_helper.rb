@@ -222,10 +222,6 @@ class CloudHelper
 
   def ssh(server, command)
     results = server.ssh(command)
-    if results.first.status > 0
-      puts results.first.stdout
-      puts results.first.stderr
-    end
     results.first.stdout.chomp
   end
 
@@ -233,27 +229,33 @@ class CloudHelper
     ssh server, "sudo sh -c '#{command}'"
   end
 
+  def wait_for_command(server, command, regex, interval=4,timeout_sec=240)
+    timeout = Time.now + timeout_sec
+    not_found = true
+    while not_found
+      sleep interval
+      found = ssh(server,command)
+      if found =~ regex
+        not_found = false
+      end
+      if timeout < Time.now
+        state(server, 'error')
+        raise RuntimeError, 'unable to find chef-solo'
+      end
+    end
+  end
+
   def run_chef(server=@connection.servers.first)
+
+    state(server, 'wating for chef-solo')
+    wait_for_command(server, 'which chef-solo', /bin/)
     state(server, "chef_start")
-    # TODO: find it the correct way ...
+    # TODO: chef-solor the correct way.
     chef_solo = "/var/lib/gems/1.8/bin/chef-solo"
-    # chef_solo = ssh server, 'which chef-solo'
-    # unless chef_solo =~ /chef-solo/
-    #   puts "can't find chef solo: #{chef_solo}"
-    # end
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/cookbooks.tgz ."
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && cp -r /home/#{self.login_user}/dna.json ."
     sudo server, "cd #{CHEF_FILE_CACHE_PATH} && #{chef_solo} -c solo.rb -j dna.json -r cookbooks.tgz"
     state(server, "chef_done")
-  end
-
-  def wait_for_state(server,state)
-    result = server.wait_for(DefaultTimeout) do
-      state_for_server == state
-    end
-    unless result
-      raise "time out wiating for #{state}"
-    end
   end
 
   def state(server,state=nil)
