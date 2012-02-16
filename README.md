@@ -135,7 +135,8 @@ For more details on using vagrant see http://vagrantup.com
 
         vagrant reload
 
-4. continue on step 4 here: http://code.google.com/p/wise4/wiki/HowToCreateANewWise4Step
+4. continue on step 4
+   [here (github project page)](https://github.com/WISE-Community/WISE/wiki/How-to-Create-a-New-Step-Type-in-WISE4)
 
 The values in the hashmap of Vagrantfile can be relative or paths.  Directories which are symlinks don't work because
 the directories need to be mounted into the VM, and symlinks don't work for that.
