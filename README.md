@@ -156,10 +156,23 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 
 ## Amazon EC2 instructions ##
 
-### Ideal Instructions (not there yet) ###
+### Installation (1st time) ###
+
+2. Install rvm if you haven't already [rvm](http://beginrescueend.com/) 
+  1.  `bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer)`
+  2.  `source ~/.bash_profile`
+2. go to your projects directory eg `cd ~/projects/`
+3. check out the wise4-vagrant project `git co git://github.com/concord-consortium/wise4-vagrant.git`
+4. `cd wise4-vagrant`
+5. `echo echo "rvm use 1.9.2-p290@wise4vagrant" > ./.rvmrc`
+6. `cd ..; cd wise4-vagrant`
+8. `git co -t origin/wise4-ec2`
+7. `gem install bundler`
+9. `bunlde install`
 1. get your amazon keys
 2. `cp config/credentials.config.sample config/credentials.config`
-3. thor cloud:new
+3. edit your credentials file
+3. thor cloud new
 
 ### TODO: ###
 * auto-generate and download key-pairs
@@ -171,7 +184,6 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 
 Tpying "`thor cloud`"  or "`thor -T`" will show you a list of available
 commands to provision, view, and modify Amazon EC2 VM instances.
-
 
     thor cloud
     Tasks:
