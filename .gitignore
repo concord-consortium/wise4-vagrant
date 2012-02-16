@@ -8,6 +8,7 @@ bin
 *.pem
 .fog
 credentials.config
+.idea
 dna.json
 .cookbooks_path.json
 .recipe_list
