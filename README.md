@@ -169,8 +169,8 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 8. `git co -t origin/wise4-ec2`
 7. `gem install bundler`
 9. `bunlde install`
-1. get your amazon keys
 2. `cp config/credentials.config.sample config/credentials.config`
+1. copy your amazon API keys from [your account page](https://aws-portal.amazon.com/gp/aws/securityCredentials)
 3. edit your credentials file
 3. thor cloud new
 
