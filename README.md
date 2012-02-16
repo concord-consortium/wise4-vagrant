@@ -156,6 +156,9 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 
 ## Amazon EC2 instructions ##
 
+See the [overview video](http://youtu.be/4i5mmzuiZPo) for a 7 minute
+intro.
+
 ### Installation (1st time) ###
 
 2. Install rvm if you haven't already [rvm](http://beginrescueend.com/) 
@@ -175,10 +178,18 @@ the directories need to be mounted into the VM, and symlinks don't work for that
 3. thor cloud new
 
 ### TODO: ###
-* auto-generate and download key-pairs
-* ensure that wise is setup(!)
+
+* modify `thor cloud stop` so that it only stops one instance.
+* add `thor cloud stop-all` to stop all instances.
+* add `thor cloud snapshot (id)` to create an AMI.
+* modify `thor cloud new (ami)` to create a new instance from an ami.
+* update chef recipe to use the machines IP address for the hostname.
+* modify `cloud_helper.rb` to have a reference to the last-used server,
+  which gets used for all actions when no server is specified.
+  (typical case is to work with a single instance at time)
 * ensure that thor can work for different vagrant directoriess
-* update to GITHUB wise source deployment
+* update to GITHUB wise source deployment to use Berkeley's repo.
+
 
 ### using Thor ###
 
@@ -187,9 +198,11 @@ commands to provision, view, and modify Amazon EC2 VM instances.
 
     thor cloud
     Tasks:
-      thor cloud:help [TASK]  # Describe available tasks or one specific task
-      thor cloud:list         # list existing servers
-      thor cloud:new          # create a new server
-      thor cloud:ssh [id]     # ssh to the machine with [id]
-      thor cloud:stop         # stop all servers
-
+      thor cloud:help [TASK]        # Describe available tasks or one specific task
+      thor cloud:list               # list existing servers
+      thor cloud:new                # create a new server
+      thor cloud:provision (id)     # provision an existing server
+      thor cloud:rsync (id)         # push local (wise4-step-types.yml) files to remote machine (id)
+      thor cloud:ssh (id)           # ssh to the machine with [id]
+      thor cloud:state (id) (state) # manually set the [state] for machine [id]
+      thor cloud:stop (id)          # stop all servers
