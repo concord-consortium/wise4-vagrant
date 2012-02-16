@@ -62,7 +62,7 @@ class CloudHelper
   def create_server
     key_name = Fog.credentials[:key_name]
     user = ENV['USER'] || env['USERNAME'] || 'unknown'
-    check_keys
+    check_keys()
 
     #TODO: This is weird place to create a security group
     group = make_group
@@ -83,21 +83,6 @@ class CloudHelper
     })
     state(server, "bootstrap")
     provision(server)
-  end
- 
-  def check_keys
-    filename = self.key_path
-    unless File.exist?(filename)
-      keypair = @connection.key_pairs.get(self.key_name)
-      if keypair
-        puts "found keypair"
-        puts keypair.name
-      else
-        keypair = @connection.key_pairs.create(self.key_name)
-      end
-      puts "writing to #{self.key_path}"
-      keypair.write(self.key_path)
-    end
   end
 
   def provision(server=@connection.servers.first)
@@ -290,4 +275,18 @@ class CloudHelper
     end
   end
 
+
+  def check_keys
+    filename = self.key_path
+    unless File.exist?(filename)
+      keypair = @connection.key_pairs.get(self.key_name)
+      if keypair
+        puts "found keypair: #{keypair.name}"
+      else
+        keypair = @connection.key_pairs.create(:name => self.key_name)
+      end
+      puts "creating new key in #{self.key_path}"
+      keypair.write(self.key_path)
+    end
+  end
 end
