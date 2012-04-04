@@ -117,6 +117,33 @@ WISE4 logs: /var/log/tomcat6/
 
 The wise4-trunk vagrant image includes subversion, maven, ant, emacs, vim
 
+## Upgrading the Virtual Box GuestAddtions
+
+If you have upgraded VirtualBox on your computer you may see a warning like this indicating that the VirtualBox Guest Additions should be updated:
+
+    $ vagrant up
+    [default] Importing base box 'wise4-trunk'...
+    [default] The guest additions on this VM do not match the install version of
+    VirtualBox! This may cause things such as forwarded ports, shared
+    folders, and more to not work properly. If any of those things fail on
+    this machine, please update the guest additions and repackage the
+    box.
+
+    Guest Additions Version: 4.1.0
+    VirtualBox Version: 4.1.10
+
+Here's one method: [Upgrade VirtualBox Guest Additions in a Vargrant Base Ubuntu Box](http://hedgehogshiatus.com/upgrade-virtualbox-guest-additions-in-a-vargr)
+
+This is what I did to upgrade from guest additions 4.1.0 to 4.1.10:
+
+    sudo apt-get install linux-headers-2.6.32-33-generic
+    sudo wget -c http://download.virtualbox.org/virtualbox/4.1.10/VBoxGuestAdditions_4.1.10.iso -O VBoxGuestAdditions_4.1.10.iso
+    sudo mount VBoxGuestAdditions_4.1.10.iso -o loop /mnt
+    cd /mnt
+    sudo sh VBoxLinuxAdditions.run --nox11
+
+This documentation on the VirtualBox wiki might also be helpful: [Debian-based Linux distributions](https://www.virtualbox.org/wiki/Linux_Downloads#Debian-basedLinuxdistributions)
+
 ## Updating to the most recent WISE4 code from subversion
 
     $ ssh vagrant1.local 'src/update-wise4.sh'
