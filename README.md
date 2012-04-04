@@ -135,6 +135,11 @@ If the wise4-trunk base box needs to be updated with additional applications or 
 
 For more details on using vagrant see http://vagrantup.com
 
+## logging errors in the wise4 tomcat server
+
+    vagrant ssh
+    tail -n 200 -f /var/lib/tomcat6/logs/catalina.out
+
 ## Add a New Step Type
 
 1. generate new step files 
