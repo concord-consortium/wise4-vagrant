@@ -14,7 +14,7 @@ Vagrant::Config.run do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.box = "wise4-trunk"
-  
+
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://mysystem.dev.concord.org/wise4/wise4-trunk.box"
@@ -29,7 +29,7 @@ Vagrant::Config.run do |config|
   # Forward a port from the guest to the host, which allows for outside
   # computers to access the VM, whereas host only networking does not.
   # NOTE: this port 8080 is hard coded into some of the wise4 settings files
-  #   so changing it might break somethings. 
+  #   so changing it might break somethings.
   config.vm.forward_port 8080, 8080
 
   wise4_step_types.each{ |name, dir|

@@ -19,7 +19,7 @@ directory "/home/vagrant" do
 end
 
 
-# Item 1 
+# Item 1
 include_recipe "apt"
 include_recipe "mysql::server"
 include_recipe "tomcat"
@@ -95,7 +95,7 @@ end
 
 build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
 build_webapps.each do |dir, war_name|
-  
+
   script "build #{dir}:#{war_name}.war with maven and install" do
     interpreter "bash"
     user "vagrant"
