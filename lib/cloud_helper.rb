@@ -221,8 +221,12 @@ class CloudHelper
   end
 
   def ssh(server, command)
-    results = server.ssh(command)
-    results.first.stdout.chomp
+    results = server.ssh(command).first
+    if results.status != 0
+      puts "Error: STDERR: #{results.stderr}"
+      puts "Error: STDOUT: #{results.stdout}"
+    end
+    results.stdout.chomp
   end
 
   def sudo(server, command)
