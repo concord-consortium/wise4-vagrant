@@ -1,20 +1,24 @@
 #!/bin/sh
 
 echo '
-updating subversion checkout of portal'
+updating git checkout of portal'
 cd /home/vagrant/src/portal
-svn up
+sudo git fetch
+sudo git merge origin/master
 echo 'building webapp.war with maven'
-mvn -Dmaven.test.skip=true package
+sudo mvn clean
+sudo mvn -Dmaven.test.skip=true package
 
 echo '
-updating subversion checkout of vlewrapper'
+updating git checkout of vlewrapper'
 cd /home/vagrant/src/vlewrapper
-echo 'svn revert locally built WebContent/WEB-INF/lib/vlewrapper-classes.jar'
-svn revert -R *
-svn up
+# echo 'revert locally built WebContent/WEB-INF/lib/vlewrapper-classes.jar'
+# sudo git checkout WebContent/WEB-INF/lib/vlewrapper-classes.jar
+sudo git fetch
+sudo git merge origin/master
 echo 'building vlewrapper.war with maven'
-mvn -Dmaven.test.skip=true package
+sudo mvn clean
+sudo mvn -Dmaven.test.skip=true package
 
 echo '
 stopping tomcat'
@@ -43,6 +47,7 @@ sudo service tomcat6 start
 
 echo '
 updating portal properties and restarting tomcat'
-sudo cp /home/vagrant/portal.properties /var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties
+ipaddr=`wget -qO- http://instance-data/latest/meta-data/public-ipv4`
+sudo sh -c "sed 's/localhost/$ipaddr/g' /home/vagrant/portal.properties > /var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties"
 sudo chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties
 sudo service tomcat6 restart
