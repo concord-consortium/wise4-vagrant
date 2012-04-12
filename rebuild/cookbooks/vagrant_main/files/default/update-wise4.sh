@@ -44,6 +44,7 @@ sudo chown -R tomcat6:tomcat6 /var/lib/tomcat6/webapps
 echo '
 starting tomcat'
 sudo service tomcat6 start
+sleep 10
 
 echo '
 updating portal properties and restarting tomcat'
@@ -51,3 +52,13 @@ ipaddr=`wget -qO- http://instance-data/latest/meta-data/public-ipv4`
 sudo sh -c "sed 's/localhost/$ipaddr/g' /home/vagrant/portal.properties > /var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties"
 sudo chown tomcat6:tomcat6 /var/lib/tomcat6/webapps/webapp/WEB-INF/classes/portal.properties
 sudo service tomcat6 restart
+
+sleep 10
+echo "
+
+***
+*** WISE4 server updated to master and running here:
+***
+***  http://$ipaddr:8080/webapp/index.html
+***
+"
