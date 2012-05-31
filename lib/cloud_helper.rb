@@ -37,7 +37,7 @@ class CloudHelper
   # opens an interactive ssh console
   def open_ssh(id=@connection.servers.first)
     command = ssh_cli_string(id)
-    exec (command)
+    exec(command)
   end
 
   def list_servers
