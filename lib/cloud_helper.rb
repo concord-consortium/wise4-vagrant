@@ -194,7 +194,7 @@ class CloudHelper
 
   def running_servers
     servers = @connection.servers.all.select { |s| s.state == "running" }
-    servers.select { |s| s.tags['Name'] == self.instance_name }
+    servers.select { |s| s.key_name == self.key_name }
   end
 
   def servers_with_tag(tag,value)
