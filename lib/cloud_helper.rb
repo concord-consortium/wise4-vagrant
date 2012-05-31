@@ -42,7 +42,8 @@ class CloudHelper
 
   def list_servers
     # running_servers.table([:id, :flavor_id, :public_ip_address, :image_id])
-    puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
+    _format = "%12.11s %12.11s %17.16s %12.11s %60.60s"
+    puts sprintf _format,
         "instance id",
         "state",
         "public IP",
@@ -50,7 +51,7 @@ class CloudHelper
         "ssh commandline"
     running_servers.each do |server|
       ssh_cli_string = ssh_cli_string(server.id)
-      puts sprintf "%12.11s %12.11s %17.16s %12.11s %60.60s",
+      puts sprintf _format,
           server.id,
           state(server),
           server.public_ip_address,
