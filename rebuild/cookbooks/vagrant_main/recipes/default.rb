@@ -75,39 +75,56 @@ directory WISE4_SRC_PATH do
    recursive true
 end
 
-git "WISE4 sailportal:trunk:portal" do
-  repository "git://github.com/concord-consortium/WISE-Portal.git"
-  reference "master"
-  destination "#{WISE4_SRC_PATH}/portal"
-  user "vagrant"
-  group "vagrant"
-  action :sync
-end
 
-git "WISE4 sail-web:trunk:vlewrapper" do
-  repository "https://github.com/WISE-Community/WISE-VLE.git"
-  reference "master"
-  destination "#{WISE4_SRC_PATH}/vlewrapper"
-  user "vagrant"
-  group "vagrant"
-  action :sync
-end
-
-build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
-build_webapps.each do |dir, war_name|
-
-  script "build #{dir}:#{war_name}.war with maven and install" do
-    interpreter "bash"
+if (node["use_binary_build"])
+  puts "Using binary build of WISE4 unset WISE_BINARY_INSTALL in your environment to buidl from source"
+  # unfortunately, its often much easier just to do this:
+  downloaded_webapps = {'webapp' => '4.5', 'vlewrapper' => '4.5'}
+  downloaded_webapps.each do |base, suffix|
+    remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
+      source "http://wise4.org/downloads/software/stable/#{base}-#{suffix}.war"
+      mode "0644"
+      notifies :restart, resources(:service => "tomcat")
+      # check if each of the app folders exists when they are unpacked these folders are created
+      not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
+    end
+  end
+else  #build from source using git:
+  git "WISE4 sailportal:trunk:portal" do
+    repository "git://github.com/concord-consortium/WISE-Portal.git"
+    reference "master"
+    destination "#{WISE4_SRC_PATH}/portal"
     user "vagrant"
-    cwd "#{WISE4_SRC_PATH}/#{dir}"
-    code "mvn -Dmaven.test.skip=true package"
+    group "vagrant"
+    action :sync
   end
 
-  script "install war file for #{war_name}" do
-    interpreter "bash"
-    user "tomcat6"
-    code "cp #{WISE4_SRC_PATH}/#{dir}/target/#{war_name}.war #{WEBAPPS_PATH}"
+  git "WISE4 sail-web:trunk:vlewrapper" do
+    repository "https://github.com/WISE-Community/WISE-VLE.git"
+    reference "master"
+    destination "#{WISE4_SRC_PATH}/vlewrapper"
+    user "vagrant"
+    group "vagrant"
+    action :sync
   end
+
+  build_webapps = {'portal' => 'webapp', 'vlewrapper' => 'vlewrapper'}
+  build_webapps.each do |dir, war_name|
+
+    script "build #{dir}:#{war_name}.war with maven and install" do
+      interpreter "bash"
+      user "vagrant"
+      cwd "#{WISE4_SRC_PATH}/#{dir}"
+      code "mvn -Dmaven.test.skip=true package"
+    end
+
+    script "install war file for #{war_name}" do
+      interpreter "bash"
+      user "tomcat6"
+      code "cp #{WISE4_SRC_PATH}/#{dir}/target/#{war_name}.war #{WEBAPPS_PATH}"
+    end
+  end
+
 end
 
 cookbook_file "/home/vagrant/src/update-wise4.sh" do
@@ -117,17 +134,6 @@ cookbook_file "/home/vagrant/src/update-wise4.sh" do
   mode "0755"
 end
 
-# Item 5
-# downloaded_webapps = {'jnlp' => ''}
-# downloaded_webapps.each do |base, suffix|
-#   remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
-#     source "http://wise4.org/downloads/software/#{base}#{suffix}.war"
-#     mode "0644"
-#     notifies :restart, resources(:service => "tomcat")
-#     # check if each of the app folders exists when they are unpacked these folders are created
-#     not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
-#   end
-# end
 
 # Item 6
 # need to force a catalina restart so the wars get exploded
