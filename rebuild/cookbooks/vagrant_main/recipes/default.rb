@@ -82,6 +82,7 @@ if (node["use_binary_build"])
   downloaded_webapps = {'webapp' => '4.5', 'vlewrapper' => '4.5'}
   downloaded_webapps.each do |base, suffix|
     remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
+      owner "tomcat6"
       source "http://wise4.org/downloads/software/stable/#{base}-#{suffix}.war"
       mode "0644"
       notifies :restart, resources(:service => "tomcat")
