@@ -152,8 +152,8 @@ end
 # also a copy for the update-wise4.sh script
 template "/home/vagrant/portal.properties" do
   source "portal.properties.erb"
-  owner "tomcat6"
-  group "tomcat6"
+  owner "vagrant"
+  group "vagrant"
   mode "0644"
 end
 
