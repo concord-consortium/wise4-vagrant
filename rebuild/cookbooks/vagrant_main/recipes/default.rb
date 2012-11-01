@@ -162,7 +162,9 @@ execute "create wise4user user" do
   command "/usr/bin/mysql -u root -p#{node[:mysql][:server_root_password]} -e \"CREATE USER 'wise4user'@'localhost' identified by 'wise4pass'\""
   only_if { `/usr/bin/mysql -u root -p#{node[:mysql][:server_root_password]} -D mysql -r -B -N -e "SELECT COUNT(*) FROM user where User='wise4user' and Host = 'localhost'"`.to_i == 0 }
 end
+
 execute "create application_production databases" do
+  not_if { File.exists? '/home/vagrant/made_databases'}
   sql= <<-SQL
     drop database if exists sail_database;
     create database sail_database;
@@ -173,7 +175,8 @@ execute "create application_production databases" do
     flush privileges;
   SQL
   # using commandline here instead of mysql recipe because that doesn't support for queries outside of databases
-  command "mysql -u root -p#{node[:mysql][:server_root_password]} -e\"#{sql}\""
+  command "mysql -u root -p#{node[:mysql][:server_root_password]} -e\"#{sql}\" && touch /home/vagrant/made_databases"
+  creates "/home/vagrant/made_databases"
 end
 
 # Item 10
@@ -181,14 +184,18 @@ end
 
 # Item 11
 execute "create-sail_database-schemas" do
+  not_if { File.exists? '/home/vagrant/made_sail_schema'}
   cwd "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/tels"
-  command "mysql sail_database -u root -p#{node[:mysql][:server_root_password]} < wise4-createtables.sql"
+  command "mysql sail_database -u root -p#{node[:mysql][:server_root_password]} < wise4-createtables.sql && touch /home/vagrant/made_sail_schema"
+  creates "/home/vagrant/made_sail_schema"
 end
 
 # Item 12
 execute "insert-default-values-into-sail_database" do
+  not_if { File.exists? '/home/vagrant/made_sail_data'}
   cwd "/var/lib/tomcat6/webapps/webapp/WEB-INF/classes/tels"
-  command "mysql sail_database -u root -p#{node[:mysql][:server_root_password]} < wise4-initial-data.sql"
+  command "mysql sail_database -u root -p#{node[:mysql][:server_root_password]} < wise4-initial-data.sql  && touch /home/vagrant/made_sail_data"
+  creates "/home/vagrant/made_sail_data"
 end
 
 # Item 13 happens automatically with the notifies restart lines above
