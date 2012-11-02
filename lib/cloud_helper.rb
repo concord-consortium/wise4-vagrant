@@ -109,11 +109,12 @@ class CloudHelper
     ssh_cmd = ssh_cli_string(id)
     puts "synching wise 4 steps #{@wise4_step_types.inspect}"
     @wise4_step_types.each{ |name, dir |
-      remote_path = "#{VLE_NODE_DIR}#{name.downcase}"
+      remote_path = "#{VLE_NODE_DIR}#{File.basename(dir)}"
       puts "remote path: #{remote_path}"
       puts "local path : #{dir}"
       server = @connection.servers.get(id)
       # make sure vagrant can write to the file.
+      self.sudo server, "mkdir -p #{remote_path}"
       self.sudo server, "chown -R #{self.login_user} #{remote_path}"
       rsync_cmd = %[rsync -rtzPu -e "ssh -i #{self.key_path}" #{dir} #{self.login_user}@#{server.public_ip_address}:#{File.dirname(remote_path)}]
       puts "command: #{rsync_cmd}"
