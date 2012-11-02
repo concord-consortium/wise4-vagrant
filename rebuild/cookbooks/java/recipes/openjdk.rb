@@ -24,8 +24,11 @@ pkgs = value_for_platform(
   "default" => ["openjdk-6-jdk","default-jdk"]
 )
 
+# this was failing with the error:  
+#   file does not exist: /usr/lib/jvm/.java-6-openjdk.jinfo
+# see http://tickets.opscode.com/browse/COOK-885 for discussion
 execute "update-java-alternatives" do
-  command "update-java-alternatives -s java-6-openjdk"
+  command "update-java-alternatives -s java-1.6.0-openjdk"
   returns [0,2]
   action :nothing
   only_if { platform?("ubuntu", "debian") }
