@@ -76,22 +76,8 @@ directory WISE4_SRC_PATH do
 end
 
 
-if (node["use_binary_build"])
-  puts "Using binary build of WISE4 unset WISE_BINARY_INSTALL in your environment to buidl from source"
-  # unfortunately, its often much easier just to do this:
-  downloaded_webapps = {'webapp' => '4.5', 'vlewrapper' => '4.5'}
-  downloaded_webapps.each do |base, suffix|
-    remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
-      owner "tomcat6"
-      source "http://wise4.org/downloads/software/stable/#{base}-#{suffix}.war"
-      mode "0644"
-      notifies :restart, resources(:service => "tomcat")
-      # check if each of the app folders exists when they are unpacked these folders are created
-      not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
-    end
-  end
-else  #build from source using git:
-  git "WISE4 sailportal:trunk:portal" do
+if (node["build_wise_from_source"])
+    git "WISE4 sailportal:trunk:portal" do
     repository "git://github.com/concord-consortium/WISE-Portal.git"
     reference "master"
     destination "#{WISE4_SRC_PATH}/portal"
@@ -123,6 +109,20 @@ else  #build from source using git:
       interpreter "bash"
       user "tomcat6"
       code "cp #{WISE4_SRC_PATH}/#{dir}/target/#{war_name}.war #{WEBAPPS_PATH}"
+    end
+  end
+else  #for a binary build:
+  puts "Using binary build of WISE4 unset BUILD_WISE_FROM_SOURCE in your environment to build from source"
+  # unfortunately, its often much easier just to do this:
+  downloaded_webapps = {'webapp' => '4.5', 'vlewrapper' => '4.5'}
+  downloaded_webapps.each do |base, suffix|
+    remote_file "/var/lib/tomcat6/webapps/#{base}.war" do
+      owner "tomcat6"
+      source "http://wise4.org/downloads/software/stable/#{base}-#{suffix}.war"
+      mode "0644"
+      notifies :restart, resources(:service => "tomcat")
+      # check if each of the app folders exists when they are unpacked these folders are created
+      not_if { File.directory? "/var/lib/tomcat6/webapps/#{base}" }
     end
   end
 

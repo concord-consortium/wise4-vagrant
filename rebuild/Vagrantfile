@@ -56,7 +56,7 @@ Vagrant::Config.run do |config|
       :tomcat => {:java_options => "-Xms128m -Xmx256m -XX:PermSize=128m -XX:MaxPermSize=256m"},
       :mysql => {:server_root_password => "password", :bind_address => '127.0.0.1'},
       :wise4_port => wise4_port,
-      :use_binary_build => ENV['WISE_BINARY_INSTALL']
+      :build_wise_from_source => ENV['BUILD_WISE_FROM_SOURCE']
     })
 
     # added to write config data for Amazon EC2 provisioning
